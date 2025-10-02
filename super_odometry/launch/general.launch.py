@@ -21,7 +21,7 @@ def generate_launch_description():
     )
     rviz_path = get_share_file(
         package_name="super_odometry",
-        file_name="ros2.rviz"
+        file_name="config/ros2.rviz"
     )
     home_directory = os.path.expanduser("~")
     

@@ -33,19 +33,26 @@ struct EIGEN_ALIGN16 PointcloudXYZITR {
   }
 };
 
-
 struct OusterPointXYZIRT {
-        PCL_ADD_POINT4D;
-        float intensity;
-        uint32_t t;
-        uint16_t reflectivity;
-        // uint8_t ring;
-        // uint16_t noise;
-        uint32_t range;
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    } EIGEN_ALIGN16;
+  PCL_ADD_POINT4D;
+  float intensity;
+  uint32_t t;
+  uint16_t reflectivity;
+  // uint8_t ring;
+  // uint16_t noise;
+  uint32_t range;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+} EIGEN_ALIGN16;
 
-} // namespace point_os
+struct EIGEN_ALIGN16 HesaiPointXYZIRT {
+  PCL_ADD_POINT4D;
+  float intensity;
+  double timestamp;
+  uint16_t ring;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+
+}  // namespace point_os
 
 // clang-format off
 POINT_CLOUD_REGISTER_POINT_STRUCT( point_os::PointOS,
@@ -78,6 +85,10 @@ POINT_CLOUD_REGISTER_POINT_STRUCT(point_os::OusterPointXYZIRT,
                                           (uint32_t, range, range)
 )
 
+POINT_CLOUD_REGISTER_POINT_STRUCT(
+    point_os::HesaiPointXYZIRT,
+    (float, x, x)(float, y, y)(float, z, z)(float, intensity, intensity)(
+        double, timestamp, timestamp)(uint16_t, ring, ring))
 
 // clang-format on
-#endif // POINT_OS_H
+#endif  // POINT_OS_H

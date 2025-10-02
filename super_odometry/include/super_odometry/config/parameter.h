@@ -1,25 +1,11 @@
 #pragma once
 
-#include <fstream>
-#include <vector>
-#include <Eigen/Dense>
-#include <opencv2/core/eigen.hpp>
-#include <opencv2/opencv.hpp>
-#include "rclcpp/rclcpp.hpp"
-#include "super_odometry/utils/Twist.h"
-
-#include <nav_msgs/msg/odometry.hpp>
-#include <nav_msgs/msg/path.hpp>
-#include <sensor_msgs/msg/imu.hpp>
-#include <sensor_msgs/msg/nav_sat_fix.hpp>
-#include <sensor_msgs/msg/point_cloud2.hpp>
-#include <std_msgs/msg/header.hpp>
-
 #include <tf2/LinearMath/Quaternion.h>
-#include <tf2_ros/transform_broadcaster.h>
 #include <tf2/transform_datatypes.h>
+#include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 
+#include <Eigen/Dense>
 #include <algorithm>
 #include <array>
 #include <cfloat>
@@ -32,13 +18,24 @@
 #include <iterator>
 #include <limits>
 #include <mutex>
+#include <nav_msgs/msg/odometry.hpp>
+#include <nav_msgs/msg/path.hpp>
+#include <opencv2/core/eigen.hpp>
+#include <opencv2/opencv.hpp>
 #include <queue>
+#include <sensor_msgs/msg/imu.hpp>
+#include <sensor_msgs/msg/nav_sat_fix.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sstream>
+#include <std_msgs/msg/header.hpp>
 #include <string>
 #include <thread>
 #include <vector>
 
-enum class SensorType {VELODYNE, OUSTER, LIVOX};
+#include "rclcpp/rclcpp.hpp"
+#include "super_odometry/utils/Twist.h"
+
+enum class SensorType { VELODYNE, OUSTER, LIVOX, HESAI };
 extern std::string IMU_TOPIC;
 extern std::string LASER_TOPIC;
 extern std::string ODOM_TOPIC;
@@ -114,7 +111,7 @@ extern float IMU_ACC_Z_LIMIT;
 
 extern bool USE_IMU_ROLL_PITCH;
 
-extern std::string SENSOR; 
+extern std::string SENSOR;
 
 extern Transformd T_ouster_sensor;
 
@@ -122,7 +119,12 @@ extern Eigen::Matrix3d ouster_sensor_R;
 
 extern Eigen::Vector3d ouster_sensor_T;
 
+extern Transformd T_hesai_sensor;
+
+extern Eigen::Matrix3d hesai_sensor_R;
+
+extern Eigen::Vector3d hesai_sensor_T;
+
 bool readGlobalparam(rclcpp::Node::SharedPtr);
 
 bool readCalibration(rclcpp::Node::SharedPtr);
-
