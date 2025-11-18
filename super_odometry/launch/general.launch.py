@@ -69,7 +69,8 @@ def generate_launch_description():
         },
         parameters=[LaunchConfiguration("config_file"),
             { "calibration_file": LaunchConfiguration("calibration_file"),
-        }],
+              "use_sim_time": True
+            }],
     )
 
     laser_mapping_node = Node(
@@ -82,6 +83,7 @@ def generate_launch_description():
         parameters=[LaunchConfiguration("config_file"),
             { "calibration_file": LaunchConfiguration("calibration_file"),
              "map_dir": os.path.join(home_directory, "/path/to/your/pcd"),
+             "use_sim_time": True
         }],
         remappings=[
             ("laser_odom_to_init", LaunchConfiguration("odom_topic")),
@@ -96,8 +98,8 @@ def generate_launch_description():
             "stderr": "screen",
         },
         parameters=[LaunchConfiguration("config_file"),
-            { "calibration_file": LaunchConfiguration("calibration_file")
-        }],
+            { "calibration_file": LaunchConfiguration("calibration_file"),
+             "use_sim_time": True}],
     )
 
     rviz_node = Node(
@@ -110,7 +112,6 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-        launch_ros.actions.SetParameter(name='use_sim_time', value='false'),
         config_path_arg,
         calib_path_arg,
         odom_topic_arg,
