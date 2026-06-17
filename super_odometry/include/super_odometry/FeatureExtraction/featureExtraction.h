@@ -7,10 +7,10 @@
 
 // #include "super_odometry/logging.h"
 
+#include <pcl/console/print.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <pcl/console/print.h>
 
 #include <cmath>
 #include <livox_ros_driver2/msg/custom_msg.hpp>
@@ -226,6 +226,7 @@ class featureExtraction : public rclcpp::Node {
   pcl::PointCloud<point_os::PointcloudXYZITR>::Ptr pointCloudwithTime = nullptr;
   pcl::PointCloud<point_os::OusterPointXYZIRT>::Ptr tmpOusterCloudIn = nullptr;
   pcl::PointCloud<point_os::HesaiPointXYZIRT>::Ptr tmpHesaiCloudIn = nullptr;
+  pcl::PointCloud<point_os::LivoxPointXYZIRT>::Ptr tmpLivoxCloudIn = nullptr;
   feature_extraction_config config_;
 };
 

@@ -5,7 +5,7 @@
 
 namespace super_odometry {
 
-imuPreintegration::imuPreintegration(const rclcpp::NodeOptions &options)
+imuPreintegration::imuPreintegration(const rclcpp::NodeOptions& options)
     : Node("imu_preintegration_node", options) {}
 
 void imuPreintegration::initInterface() {
@@ -171,6 +171,8 @@ bool imuPreintegration::readParameters() {
     config_.sensor = SensorType::OUSTER;
   } else if (SENSOR == "hesai") {
     config_.sensor = SensorType::HESAI;
+  } else if (SENSOR == "avia") {
+    config_.sensor = SensorType::AVIA;
   } else {
     RCLCPP_ERROR(this->get_logger(),
                  "[SuperOdometry::imuPreintegration] Not supported sensor "
@@ -291,7 +293,7 @@ void imuPreintegration::integrate_imumeasurement(double currentCorrectionTime) {
 
   while (!imuQueOpt.empty()) {
     // pop and integrate imu data that is between two optimizations
-    sensor_msgs::msg::Imu *thisImu = &imuQueOpt.front();
+    sensor_msgs::msg::Imu* thisImu = &imuQueOpt.front();
     double imuTime = secs(thisImu);
     if (imuTime < currentCorrectionTime - delta_t) {
       double dt = (lastImuT_opt < 0) ? (1.0 / 200.0) : (imuTime - lastImuT_opt);
@@ -330,8 +332,8 @@ bool imuPreintegration::build_graph(gtsam::Pose3 lidarPose,
   graphFactors.add(pose_factor);
   // add imu factor to graph
 
-  const gtsam::PreintegratedImuMeasurements &preint_imu =
-      dynamic_cast<const gtsam::PreintegratedImuMeasurements &>(
+  const gtsam::PreintegratedImuMeasurements& preint_imu =
+      dynamic_cast<const gtsam::PreintegratedImuMeasurements&>(
           *imuIntegratorOpt_);
   gtsam::ImuFactor imu_factor(X(key - 1), V(key - 1), X(key), V(key),
                               B(key - 1), preint_imu);
@@ -351,7 +353,7 @@ bool imuPreintegration::build_graph(gtsam::Pose3 lidarPose,
     optimizer.update(graphFactors, graphValues);
     optimizer.update();
     systemSolvedSuccessfully = true;
-  } catch (const gtsam::IndeterminantLinearSystemException &) {
+  } catch (const gtsam::IndeterminantLinearSystemException&) {
     systemSolvedSuccessfully = false;
     RCLCPP_WARN(this->get_logger(),
                 "Update failed due to underconstrained call to isam2 in "
@@ -386,7 +388,7 @@ void imuPreintegration::repropagate_imuodometry(double currentCorrectionTime) {
   if (!imuQueImu.empty()) {
     imuIntegratorImu_->resetIntegrationAndSetBias(prevBiasOdom);
     for (int i = 0; i < (int)imuQueImu.size(); ++i) {
-      sensor_msgs::msg::Imu *thisImu = &imuQueImu[i];
+      sensor_msgs::msg::Imu* thisImu = &imuQueImu[i];
       double imuTime = secs(thisImu);
       double dt = (lastImuQT < 0) ? (1.0 / 200.0) : (imuTime - lastImuQT);
       lastImuQT = imuTime;
@@ -437,7 +439,7 @@ void imuPreintegration::process_imu_odometry(double currentCorrectionTime,
 }
 
 bool imuPreintegration::failureDetection(
-    const gtsam::Vector3 &velCur, const gtsam::imuBias::ConstantBias &biasCur) {
+    const gtsam::Vector3& velCur, const gtsam::imuBias::ConstantBias& biasCur) {
   Eigen::Vector3f vel(velCur.x(), velCur.y(), velCur.z());
   if (vel.norm() > 30) {
     RCLCPP_WARN(this->get_logger(),
@@ -530,7 +532,7 @@ void imuPreintegration::laserodometryHandler(
 }
 // TODO: need to consider the extrinsic matrix of imu and lidar
 sensor_msgs::msg::Imu imuPreintegration::imuConverter(
-    const sensor_msgs::msg::Imu &imu_in) {
+    const sensor_msgs::msg::Imu& imu_in) {
   sensor_msgs::msg::Imu imu_out = imu_in;
 
   Eigen::Matrix3d imu_laser_R_Gravity;
@@ -615,8 +617,8 @@ void imuPreintegration::imuHandler(
 }
 
 bool imuPreintegration::handleIMUInitialization(
-    const sensor_msgs::msg::Imu::SharedPtr &imu_raw,
-    sensor_msgs::msg::Imu &thisImu) {
+    const sensor_msgs::msg::Imu::SharedPtr& imu_raw,
+    sensor_msgs::msg::Imu& thisImu) {
   if (!imu_init_success) {
     initializeImu(imu_raw);
   }
@@ -629,7 +631,7 @@ bool imuPreintegration::handleIMUInitialization(
 }
 
 void imuPreintegration::initializeImu(
-    const sensor_msgs::msg::Imu::SharedPtr &imu_raw) {
+    const sensor_msgs::msg::Imu::SharedPtr& imu_raw) {
   Imu::Ptr imudata = std::make_shared<Imu>();
   imudata->time =
       imu_raw->header.stamp.sec + imu_raw->header.stamp.nanosec * 1e-9;
@@ -656,7 +658,7 @@ void imuPreintegration::initializeImu(
   }
 }
 
-void imuPreintegration::correctLivoxGravity(sensor_msgs::msg::Imu &thisImu) {
+void imuPreintegration::correctLivoxGravity(sensor_msgs::msg::Imu& thisImu) {
   const double gravity = 9.8105;
   Eigen::Vector3d acc(thisImu.linear_acceleration.x,
                       thisImu.linear_acceleration.y,
@@ -667,7 +669,7 @@ void imuPreintegration::correctLivoxGravity(sensor_msgs::msg::Imu &thisImu) {
   thisImu.linear_acceleration.z = acc.z();
 }
 
-void imuPreintegration::processTiming(const sensor_msgs::msg::Imu &thisImu) {
+void imuPreintegration::processTiming(const sensor_msgs::msg::Imu& thisImu) {
   double imuTime = secs(&thisImu);
   double dt = (lastImuT_imu < 0) ? (1.0 / 200.0) : (imuTime - lastImuT_imu);
   lastImuT_imu = imuTime;
@@ -680,9 +682,9 @@ void imuPreintegration::processTiming(const sensor_msgs::msg::Imu &thisImu) {
   imuQueImu.push_back(thisImu);
 }
 
-void imuPreintegration::publishOdometry(const sensor_msgs::msg::Imu &thisImu,
-                                        const gtsam::NavState &currentState,
-                                        nav_msgs::msg::Odometry &odometry) {
+void imuPreintegration::publishOdometry(const sensor_msgs::msg::Imu& thisImu,
+                                        const gtsam::NavState& currentState,
+                                        nav_msgs::msg::Odometry& odometry) {
   prepareOdometryMessage(odometry, thisImu, currentState);
 
   if (frame_count++ % 4 == 0) {
@@ -696,13 +698,13 @@ void imuPreintegration::publishOdometry(const sensor_msgs::msg::Imu &thisImu,
 }
 
 void imuPreintegration::publishTransformsAndPath(
-    nav_msgs::msg::Odometry &odometry, const sensor_msgs::msg::Imu &thisImu) {
+    nav_msgs::msg::Odometry& odometry, const sensor_msgs::msg::Imu& thisImu) {
   publishTransform(odometry, thisImu);
   updateAndPublishPath(odometry, thisImu);
 }
 
-void imuPreintegration::publishTransform(nav_msgs::msg::Odometry &odometry,
-                                         const sensor_msgs::msg::Imu &thisImu) {
+void imuPreintegration::publishTransform(nav_msgs::msg::Odometry& odometry,
+                                         const sensor_msgs::msg::Imu& thisImu) {
   tf2_ros::TransformBroadcaster br(this);
   geometry_msgs::msg::TransformStamped transform_stamped_;
   tf2::Transform transform;
@@ -725,7 +727,7 @@ void imuPreintegration::publishTransform(nav_msgs::msg::Odometry &odometry,
 }
 
 void imuPreintegration::updateAndPublishPath(
-    nav_msgs::msg::Odometry &odometry, const sensor_msgs::msg::Imu &thisImu) {
+    nav_msgs::msg::Odometry& odometry, const sensor_msgs::msg::Imu& thisImu) {
   static nav_msgs::msg::Path imuPath;
   static double last_path_time = -1;
   double curimuTime = secs(&thisImu);
@@ -748,8 +750,8 @@ void imuPreintegration::updateAndPublishPath(
 }
 
 void imuPreintegration::prepareOdometryMessage(
-    nav_msgs::msg::Odometry &odometry, const sensor_msgs::msg::Imu &thisImu,
-    const gtsam::NavState &currentState) {
+    nav_msgs::msg::Odometry& odometry, const sensor_msgs::msg::Imu& thisImu,
+    const gtsam::NavState& currentState) {
   Eigen::Quaterniond q_w_curr;
   if (config_.use_imu_roll_pitch) {
     q_w_curr = Eigen::Quaterniond(thisImu.orientation.w, thisImu.orientation.x,

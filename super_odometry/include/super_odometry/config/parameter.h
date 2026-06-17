@@ -35,7 +35,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "super_odometry/utils/Twist.h"
 
-enum class SensorType { VELODYNE, OUSTER, LIVOX, HESAI };
+enum class SensorType { VELODYNE, OUSTER, LIVOX, HESAI, AVIA };
 extern std::string IMU_TOPIC;
 extern std::string LASER_TOPIC;
 extern std::string ODOM_TOPIC;

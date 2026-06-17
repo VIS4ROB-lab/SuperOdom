@@ -71,7 +71,8 @@ void featureExtraction::initInterface() {
 
   if (config_.sensor == SensorType::VELODYNE ||
       config_.sensor == SensorType::OUSTER ||
-      config_.sensor == SensorType::HESAI) {
+      config_.sensor == SensorType::HESAI ||
+      config_.sensor == SensorType::AVIA) {
     subLaserCloud = this->create_subscription<sensor_msgs::msg::PointCloud2>(
         LASER_TOPIC, laser_qos,
         std::bind(&featureExtraction::laserCloudHandler, this,
@@ -201,6 +202,8 @@ bool featureExtraction::readParameters() {
     config_.sensor = SensorType::OUSTER;
   } else if (SENSOR == "hesai") {
     config_.sensor = SensorType::HESAI;
+  } else if (SENSOR == "avia") {
+    config_.sensor = SensorType::AVIA;
   } else {
     RCLCPP_ERROR(this->get_logger(), "Unsupported sensor type: %s",
                  SENSOR.c_str());
@@ -743,13 +746,31 @@ void featureExtraction::laserCloudHandler(
 
   tmpOusterCloudIn.reset(new pcl::PointCloud<point_os::OusterPointXYZIRT>());
   tmpHesaiCloudIn.reset(new pcl::PointCloud<point_os::HesaiPointXYZIRT>());
+  tmpLivoxCloudIn.reset(new pcl::PointCloud<point_os::LivoxPointXYZIRT>());
 
   if (config_.provide_point_time) {
     if (config_.sensor == SensorType::VELODYNE) {
       pcl::fromROSMsg(*laserCloudMsg, *pointCloud);
-
+      for (size_t i = 0; i < pointCloud->size(); i++) {
+        auto& dst = pointCloud->points[i];
+        if (dst.time < 0.0) {
+          dst.time = 0.1 + dst.time;
+        } else if (dst.time < 1.0) {
+          dst.time = dst.time;
+        } else {
+          dst.time = (dst.time - pointCloud->points[0].time) * 1e-6f;
+        }
+        if (std::isnan(dst.x) || std::isinf(dst.x)) {
+          dst.x = 0.0;
+        }
+        if (std::isnan(dst.y) || std::isinf(dst.y)) {
+          dst.y = 0.0;
+        }
+        if (std::isnan(dst.z) || std::isinf(dst.z)) {
+          dst.z = 0.0;
+        }
+      }
     } else if (config_.sensor == SensorType::OUSTER) {
-      // Convert to Velodyne format
       pcl::fromROSMsg(*laserCloudMsg, *tmpOusterCloudIn);
       pointCloud->points.resize(tmpOusterCloudIn->size());
       pointCloud->is_dense = tmpOusterCloudIn->is_dense;
@@ -757,24 +778,71 @@ void featureExtraction::laserCloudHandler(
       for (size_t i = 0; i < tmpOusterCloudIn->size(); i++) {
         auto& src = tmpOusterCloudIn->points[i];
         auto& dst = pointCloud->points[i];
-        utils::transformOusterPoints(
-            &src, &dst, T_ouster_sensor);  // Convert the ouster points from
-                                           // ouster frame to sensor frame
+        dst.x = src.x;
+        dst.y = src.y;
+        dst.z = src.z;
+        dst.intensity = src.intensity;
+        dst.ring = src.ring;
         dst.time = src.t * 1e-9f;
+        if (std::isnan(dst.x) || std::isinf(dst.x)) {
+          dst.x = 0.0;
+        }
+        if (std::isnan(dst.y) || std::isinf(dst.y)) {
+          dst.y = 0.0;
+        }
+        if (std::isnan(dst.z) || std::isinf(dst.z)) {
+          dst.z = 0.0;
+        }
       }
     } else if (config_.sensor == SensorType::HESAI) {
-      // Convert to Velodyne format
       pcl::fromROSMsg(*laserCloudMsg, *tmpHesaiCloudIn);
       pointCloud->points.resize(tmpHesaiCloudIn->size());
       pointCloud->is_dense = tmpHesaiCloudIn->is_dense;
 
+      double start_stamptime = tmpLivoxCloudIn->points[0].timestamp;
       for (size_t i = 0; i < tmpHesaiCloudIn->size(); i++) {
         auto& src = tmpHesaiCloudIn->points[i];
         auto& dst = pointCloud->points[i];
-        utils::transformHesaiPoints(
-            &src, &dst, T_hesai_sensor);  // Convert the hesai points from
-                                          // hesai frame to sensor frame
-        dst.time = src.timestamp - tmpHesaiCloudIn->points[0].timestamp;
+        dst.x = src.x;
+        dst.y = src.y;
+        dst.z = src.z;
+        dst.intensity = src.intensity;
+        dst.ring = src.ring;
+        dst.time = src.timestamp - start_stamptime;
+        if (std::isnan(dst.x) || std::isinf(dst.x)) {
+          dst.x = 0.0;
+        }
+        if (std::isnan(dst.y) || std::isinf(dst.y)) {
+          dst.y = 0.0;
+        }
+        if (std::isnan(dst.z) || std::isinf(dst.z)) {
+          dst.z = 0.0;
+        }
+      }
+    } else if (config_.sensor == SensorType::AVIA) {
+      pcl::fromROSMsg(*laserCloudMsg, *tmpLivoxCloudIn);
+      pointCloud->points.resize(tmpLivoxCloudIn->size());
+      pointCloud->is_dense = tmpLivoxCloudIn->is_dense;
+
+      double start_stamptime = tmpLivoxCloudIn->points[0].timestamp;
+      for (size_t i = 0; i < tmpLivoxCloudIn->size(); i++) {
+        auto& src = tmpLivoxCloudIn->points[i];
+        auto& dst = pointCloud->points[i];
+        dst.x = src.x;
+        dst.y = src.y;
+        dst.z = src.z;
+        dst.intensity = src.intensity;
+        dst.ring = 1;
+        dst.time = (src.timestamp - start_stamptime) * 1e-9f;
+        if (std::isnan(dst.x) || std::isinf(dst.x)) {
+          dst.x = 0.0;
+        }
+        if (std::isnan(dst.y) || std::isinf(dst.y)) {
+          dst.y = 0.0;
+        }
+        if (std::isnan(dst.z) || std::isinf(dst.z)) {
+          dst.z = 0.0;
+        }
       }
     } else {
       RCLCPP_ERROR(this->get_logger(), "Unknown sensor type: %d", int(sensor));

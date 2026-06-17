@@ -341,7 +341,8 @@ bool readGlobalparam(rclcpp::Node::SharedPtr node) {
       {"velodyne", SensorType::VELODYNE},
       {"ouster", SensorType::OUSTER},
       {"livox", SensorType::LIVOX},
-      {"hesai", SensorType::HESAI}};
+      {"hesai", SensorType::HESAI},
+      {"avia", SensorType::AVIA}};
 
   if (sensorTypeMap.find(SENSOR) == sensorTypeMap.end()) {
     RCLCPP_ERROR(node->get_logger(), "Unsupported sensor type: %s",
