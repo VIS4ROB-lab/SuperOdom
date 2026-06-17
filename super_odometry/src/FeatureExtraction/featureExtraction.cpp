@@ -799,7 +799,7 @@ void featureExtraction::laserCloudHandler(
       pointCloud->points.resize(tmpHesaiCloudIn->size());
       pointCloud->is_dense = tmpHesaiCloudIn->is_dense;
 
-      double start_stamptime = tmpLivoxCloudIn->points[0].timestamp;
+      double start_stamptime = tmpHesaiCloudIn->points[0].timestamp;
       for (size_t i = 0; i < tmpHesaiCloudIn->size(); i++) {
         auto& src = tmpHesaiCloudIn->points[i];
         auto& dst = pointCloud->points[i];
