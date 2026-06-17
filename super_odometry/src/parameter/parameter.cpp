@@ -103,6 +103,8 @@ float IMU_ACC_Z_LIMIT;
 
 bool USE_IMU_ROLL_PITCH;
 
+bool SAVE_PLY;
+
 std::string SENSOR;
 
 template <typename T>
