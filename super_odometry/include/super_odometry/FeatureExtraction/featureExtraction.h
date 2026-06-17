@@ -10,6 +10,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/console/print.h>
 
 #include <cmath>
 #include <livox_ros_driver2/msg/custom_msg.hpp>
