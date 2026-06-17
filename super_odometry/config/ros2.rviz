@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /TF1/Frames1
       Splitter Ratio: 0.5
-    Tree Height: 252
+    Tree Height: 707
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -31,8 +31,8 @@ Visualization Manager:
     - Alpha: 0.009999999776482582
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 7.8057708740234375
-        Min Value: -2.0029962062835693
+        Max Value: 24.719959259033203
+        Min Value: -13.114978790283203
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -69,23 +69,15 @@ Visualization Manager:
         All Enabled: false
         imu_superodom:
           Value: true
-        livox_frame:
-          Value: true
-        odom_alpha:
-          Value: true
-        odom_beta:
-          Value: true
-        odom_gamma:
+        odom_base:
           Value: true
         odom_lidar:
           Value: false
         odom_superodom:
           Value: true
-        sensor_alpha:
+        qt64_lidar:
           Value: true
-        sensor_beta:
-          Value: true
-        sensor_gamma:
+        sensor_base:
           Value: true
       Marker Scale: 3
       Name: TF
@@ -93,23 +85,13 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        odom_lidar:
-          odom_superodom:
-            imu_superodom:
-              livox_frame:
-                {}
-              sensor_alpha:
-                {}
-              sensor_beta:
-                {}
-              sensor_gamma:
-                {}
-            odom_alpha:
-              {}
-            odom_beta:
-              {}
-            odom_gamma:
-              {}
+        odom_base:
+          odom_lidar:
+            odom_superodom:
+              imu_superodom:
+                qt64_lidar:
+                  sensor_base:
+                    {}
       Update Interval: 0
       Value: true
     - Class: rviz_2d_overlay_plugins/PieChartOverlay
@@ -326,25 +308,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 185.49472045898438
+      Distance: 74.58505249023438
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 34.93035888671875
-        Y: -45.47110366821289
-        Z: 17.29246711730957
+        X: 102.72749328613281
+        Y: 10.194128036499023
+        Z: 12.288037300109863
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0147972106933594
+      Pitch: 1.3097965717315674
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.4585471153259277
+      Yaw: 4.638551235198975
     Saved: ~
 Window Geometry:
   Displays:
